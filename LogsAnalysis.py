@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-"""LogsAnalysis.py: Reporting tool for analyzing logs from a newspaper site"""
+"""LogsAnalysis.py: Reporting tool for analyzing logs from a newspaper site."""
 
 import psycopg2
 
@@ -10,6 +10,7 @@ __license__ = "MIT"
 
 
 def analyze_logs():
+    """Connect to DB, execute queries, and print the report."""
     db = psycopg2.connect(database="news")
     c = db.cursor()
 
@@ -44,5 +45,6 @@ def analyze_logs():
     db.close()
     for item in result3:
         print(item[0], '-', item[1], 'errors')
+
 
 analyze_logs()

@@ -13,6 +13,7 @@ def analyze_logs():
     """Connect to DB, execute queries, and print the report."""
     db = psycopg2.connect(database="news")
     c = db.cursor()
+    create_views(c)
 
     print('\nThe most popular three articles of all time are:')
     c.execute('SELECT title, count(*) AS views '
@@ -45,6 +46,27 @@ def analyze_logs():
     db.close()
     for item in result3:
         print(item[0], '-', item[1], 'errors')
+
+
+def create_views(cursor):
+    """Create the necessary views."""
+    cursor.execute("CREATE OR REPLACE TEMP VIEW slug_log AS "
+                   "SELECT reverse(split_part(reverse(path), '/', 1)) "
+                   "\"slug\", status, time, id "
+                   "FROM log ")
+
+    cursor.execute("CREATE OR REPLACE TEMP VIEW errors AS "
+                   "SELECT to_char(time, 'Month DD, YYYY') AS date, "
+                   "count(*) AS num_of_err "
+                   "FROM log "
+                   "WHERE status LIKE '4%' "
+                   "GROUP BY date ")
+
+    cursor.execute("CREATE OR REPLACE TEMP VIEW requests AS "
+                   "SELECT to_char(time, 'Month DD, YYYY') AS date, "
+                   "count(*) AS num_of_req "
+                   "FROM log "
+                   "GROUP BY date ")
 
 
 analyze_logs()
